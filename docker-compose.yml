@@ -1,0 +1,24 @@
+version: '3'
+services:
+  vehicle_emulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.emulator  # Use separate Dockerfile for the emulator
+    container_name: vehicle_emulator
+    network_mode: "host"
+    volumes:
+      - ./emulator.py:/app/emulator.py  # Mount the emulator script
+
+  gif_display:
+    build:
+      context: .
+      dockerfile: Dockerfile.display  # Use separate Dockerfile for the display
+    container_name: gif_display
+    depends_on:
+      - vehicle_emulator
+    network_mode: "host"
+    environment:
+      - DISPLAY=:0
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./main.py:/app/main.py  # Mount the main script

@@ -1,0 +1,7 @@
+# Dockerfile for vehicle_emulator
+FROM python:3.9-slim
+RUN apt-get update && apt-get install -y can-utils && rm -rf /var/lib/apt/lists/*
+RUN pip install python-can
+WORKDIR /app
+COPY emulator.py /app
+CMD ["python", "emulator.py"]
