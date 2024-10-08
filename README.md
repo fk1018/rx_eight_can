@@ -1,3 +1,3 @@
 ```
- docker-compose up --build
+python3 main.py
  ```
