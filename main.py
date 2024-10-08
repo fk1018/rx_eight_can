@@ -13,11 +13,12 @@ under_80_gif = pygame.image.load("under_80.gif")
 over_80_gif = pygame.image.load("over_80.gif")
 
 # Set up CAN interface
-can_interface = 'can0'  # Update if using a different interface
-bus = can.interface.Bus(channel=can_interface, bustype='socketcan')
+can_interface = 'vcan0'  # Update if using a different interface
+bus = can.interface.Bus(channel=can_interface, interface='socketcan')
 
 # Function to display a GIF
 def display_gif(gif):
+    screen.fill((0, 0, 0))  # Clear the screen before displaying the new GIF
     screen.blit(gif, (0, 0))
     pygame.display.update()
 
@@ -27,13 +28,13 @@ try:
         # Read a message from the CAN bus
         message = bus.recv()
         
-        # Check if the message ID matches the vehicle speed ID (e.g., 1200)
-        if message.arbitration_id == 0x4B0:  # 0x4B0 is hexadecimal for 1200 in decimal
-            # Extract speed data from the CAN message (adjust index as needed)
-            front_left_speed = (message.data[0] * 256) + message.data[1] - 10000
-            front_right_speed = (message.data[2] * 256) + message.data[3] - 10000
-            rear_left_speed = (message.data[4] * 256) + message.data[5] - 10000
-            rear_right_speed = (message.data[6] * 256) + message.data[7] - 10000
+        # Check if the message ID matches the vehicle speed ID (e.g., 0x4B0)
+        if message.arbitration_id == 0x4B0:
+            # Extract speed data from the CAN message
+            front_left_speed = (message.data[0] << 8) + message.data[1]
+            front_right_speed = (message.data[2] << 8) + message.data[3]
+            rear_left_speed = (message.data[4] << 8) + message.data[5]
+            rear_right_speed = (message.data[6] << 8) + message.data[7]
 
             # Calculate average vehicle speed (basic approximation)
             vehicle_speed = (front_left_speed + front_right_speed + rear_left_speed + rear_right_speed) / 4
